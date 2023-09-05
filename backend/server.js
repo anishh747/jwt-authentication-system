@@ -2,7 +2,7 @@ import express from "express";
 import dotenv from 'dotenv';
 import userRoutes from './routes/userRoutes.js'
 import {notFound, errorHandler} from './middleware/errorMiddleware.js'
-
+import {pool} from './db.js'
 
 dotenv.config();
 const PORT = process.env.PORT || 5000;
