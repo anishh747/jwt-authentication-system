@@ -3,9 +3,9 @@ import {authUser,registerUser,logOutUser,getUserProfile,updateProfile} from "../
 
 const router = express.Router();
 
-router.post('/auth',authUser);
-
 router.post('/',registerUser);
+
+router.post('/auth',authUser);
 
 router.post('/logout',logOutUser);
 
