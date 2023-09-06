@@ -5,13 +5,13 @@ import { pool } from "../db.js";
 const protect = expressAsyncHandler(async(req,res,next)=>{
     let token;
     token = req.cookies.jwt;
-    console.log(token)
+    // console.log(token)
 
     if (token) {
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET)
         
-            req.user = await pool.query("SELECT (email,name) FROM users WHere id=$1",[decoded.userID])
+            req.user = await pool.query("SELECT * FROM users WHere id=$1",[decoded.userID])
             next();
         } catch (error) {
             res.status(401);;

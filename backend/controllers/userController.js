@@ -63,7 +63,16 @@ const getUserProfile = expressAsyncHandler(async(req,res) =>{
 });
 
 const updateProfile = expressAsyncHandler(async(req,res) =>{
-    res.status(200).json({mesage:"updateProfie"})
-
+    const {name} = req.body;
+    const id = req.user.rows[0].id;
+    const checkUser = await pool.query("SELECT * FROM users WHERE id = $1",[id])
+    if (checkUser.rowCount !== 0) {
+        const updateDetails = await pool.query("UPDATE users SET name=$1 WHERE id=$2",[name,id])            
+        res.status(200)
+        res.json(updateDetails)
+    }else{
+        res.status(404)
+        throw new Error('User Not Found')
+    }
 });
 export  {authUser,registerUser,logOutUser,getUserProfile,updateProfile};
