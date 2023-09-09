@@ -1,51 +1,166 @@
-import { Link } from "react-router-dom";
+import { useEffect, useRef, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from "react-redux";
 
-function Header() {
+
+
+const Header = () => {
+
+  const [menuState, setMenuState] = useState(false)
+  const [profileState, setProfileState] = useState(false)
+  const navRef = useRef()
+  const { userInfo } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+  const profileRef = useRef()
+
+  // Replace javascript:void(0) path with your path
+  const navigation = [
+    { title: "Careers", path: "javascript:void(0)" },
+    { title: "Guides", path: "javascript:void(0)" },
+    { title: "Partners", path: "javascript:void(0)" },
+  ]
+
+  const navigationAfterLogin = [
+    { title: "Dashboard", path: "javascript:void(0)" },
+    { title: "Settings", path: "javascript:void(0)" },
+    { title: "Log out", path: "javascript:void(0)" },
+  ]
+  useEffect(() => {
+    const handleDropDown = (e) => {
+      if (!profileRef.current.contains(e.target)) setProfileState(false)
+    }
+    document.addEventListener('click', handleDropDown)
+  }, [])
+
+  useEffect(() => {
+
+    const body = document.body
+
+    // Disable scrolling
+    const customBodyStyle = ["overflow-hidden", "lg:overflow-visible"]
+    if (menuState) body.classList.add(...customBodyStyle)
+    // Enable scrolling
+    else body.classList.remove(...customBodyStyle)
+
+    // Sticky strick
+    const customStyle = ["sticky-nav", "fixed", "border-b"]
+    window.onscroll = () => {
+      if (window.scrollY > 80) navRef.current.classList.add(...customStyle)
+      else navRef.current.classList.remove(...customStyle)
+    }
+  }, [menuState])
+
+
   return (
-    <>
-      <nav className="bg-white border-gray-200 dark:bg-gray-900">
-        <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
-          <a href="https://flowbite.com/" className="flex items-center">
-            <img src="https://flowbite.com/docs/images/logo.svg" className="h-8 mr-3" alt="Flowbite Logo" />
-            <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Flowbite</span>
+    <nav ref={navRef} className="bg-white w-full top-0 z-20">
+      <div className="items-center px-4 max-w-screen-xl mx-auto md:px-8 lg:flex">
+        <div className="flex items-center justify-between py-3 lg:py-4 lg:block">
+          <a href="javascript:void(0)">
+            <img
+              src="https://www.floatui.com/logo.svg"
+              width={120}
+              height={50}
+              alt="Float UI logo"
+            />
           </a>
-          <div className="flex md:order-2">
-            <Link to='./Login'>
-              <button type="button" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center mr-3 md:mr-0 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mx-3">Login</button>
-            </Link>
-            <Link to='./Register'>
-            <button type="button" className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center mr-3 md:mr-0 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Register</button>
-            </Link>
-            <button data-collapse-toggle="navbar-cta" type="button" className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-cta" aria-expanded="false">
-              <span className="sr-only">Open main menu</span>
-              <svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
-                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 1h15M1 7h15M1 13h15" />
-              </svg>
+          <div className="lg:hidden">
+            <button className="text-gray-700 outline-none p-2 rounded-md focus:border-gray-400 focus:border"
+              onClick={() => setMenuState(!menuState)}
+            >
+              {
+                menuState ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
+                  </svg>
+                )
+              }
             </button>
           </div>
-          <div className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-cta">
-            <ul className="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
-              <li>
-                <a href="#" className="block py-2 pl-3 pr-4 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500" aria-current="page">Home</a>
-              </li>
-              <li>
-                <a href="#" className="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">About</a>
-              </li>
-              <li>
-                <a href="#" className="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Services</a>
-              </li>
-              <li>
-                <a href="#" className="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Contact</a>
-              </li>
+        </div>
+        <div className={`flex-1 justify-between flex-row-reverse lg:overflow-visible lg:flex lg:pb-0 lg:pr-0 lg:h-auto ${menuState ? 'h-screen pb-20 overflow-auto pr-4' : 'hidden'}`}>
+          {!userInfo ? (
+            <>
+              <div>
+                <ul className="flex flex-col-reverse space-x-0 lg:space-x-6 lg:flex-row">
+                  <li className="mt-8 mb-8 lg:mt-0 lg:mb-0">
+                    <a href="javascript:void(0)" className="text-gray-600 hover:text-indigo-600">
+                      Contact
+                    </a>
+                  </li>
+                  <Link to="/login">
+                    <li className="mt-4 lg:mt-0">
+                      <a href="javascript:void(0)" className="py-3 px-4 text-center border text-gray-600 hover:text-indigo-600 rounded-md block lg:inline lg:border-0">
+                        Login
+                      </a>
+                    </li>
+                  </Link>
+                  <Link to="/register">
+                    <li className="mt-8 lg:mt-0">
+                      <a href="javascript:void(0)" className="py-3 px-4 text-center text-white bg-indigo-600 hover:bg-indigo-700 rounded-md shadow block lg:inline">
+                        Sign Up
+                      </a>
+                    </li>
+                  </Link>
+                </ul>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className={`relative`}>
+                <div className="flex items-center space-x-4">
+                  <button ref={profileRef} className="w-10 h-10 outline-none rounded-full ring-offset-2 ring-gray-200 ring-2 lg:focus:ring-indigo-600"
+                    onClick={() => setProfileState(!profileState)}
+                  >
+                    <img
+                      src="https://randomuser.me/api/portraits/men/46.jpg"
+                      className="w-full h-full rounded-full"
+                    />
+                  </button>
+                  <div className="lg:hidden">
+                    <span className="block">Micheal John</span>
+                    <span className="block text-sm text-gray-500">john@gmail.com</span>
+                  </div>
+                </div>
+                <ul className={`bg-white top-12 right-0 mt-5 space-y-5 lg:absolute lg:border lg:rounded-md lg:text-sm lg:w-52 lg:shadow-md lg:space-y-0 lg:mt-0 ${profileState ? '' : 'lg:hidden'}`}>
+                  {
+                    navigationAfterLogin.map((item, idx) => (
+                      <li>
+                        <a key={idx} className="block text-gray-600 lg:hover:bg-gray-50 lg:p-2.5" href={item.path}>
+                          {item.title}
+                        </a>
+                      </li>
+                    ))
+                  }
+                </ul>
+              </div>
+            </>
+          )}
+
+
+
+          <div className="flex-1">
+            <ul className="justify-center items-center space-y-8 lg:flex lg:space-x-6 lg:space-y-0">
+              {
+                navigation.map((item, idx) => {
+                  return (
+                    <li key={idx} className="text-gray-600 hover:text-indigo-600">
+                      <a href={item.path}>
+                        {item.title}
+                      </a>
+                    </li>
+                  )
+                })
+              }
             </ul>
           </div>
         </div>
-      </nav>
-
-
-
-    </>
-  );
+      </div>
+    </nav>
+  )
 }
 
 export default Header;
