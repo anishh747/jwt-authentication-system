@@ -1,17 +1,31 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from "react-redux";
-
-
+import { useLogoutMutation } from '../slices/usersApiSlice';
+import {logout} from '../slices/authSlice'
 
 const Header = () => {
 
-  const [menuState, setMenuState] = useState(false)
-  const [profileState, setProfileState] = useState(false)
-  const navRef = useRef()
-  const { userInfo } = useSelector((state) => state.auth);
+  const [menuState, setMenuState] = useState(false);
+  const [profileState, setProfileState] = useState(false);
+  const navRef = useRef();
+  const profileRef = useRef();
+
   const navigate = useNavigate();
-  const profileRef = useRef()
+  const dispatch = useDispatch();
+
+  const [logoutApiCall] = useLogoutMutation();
+
+  const logoutHandler = async () =>{
+    try {
+      await logoutApiCall().unwrap();
+      dispatch(logout());
+      navigate('/');
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  const { userInfo } = useSelector((state) => state.auth);
 
   // Replace javascript:void(0) path with your path
   const navigation = [
@@ -20,11 +34,6 @@ const Header = () => {
     { title: "Partners", path: "javascript:void(0)" },
   ]
 
-  const navigationAfterLogin = [
-    { title: "Dashboard", path: "javascript:void(0)" },
-    { title: "Settings", path: "javascript:void(0)" },
-    { title: "Log out", path: "javascript:void(0)" },
-  ]
   useEffect(() => {
     const handleDropDown = (e) => {
       if (!profileRef.current.contains(e.target)) setProfileState(false)
@@ -126,15 +135,21 @@ const Header = () => {
                   </div>
                 </div>
                 <ul className={`bg-white top-12 right-0 mt-5 space-y-5 lg:absolute lg:border lg:rounded-md lg:text-sm lg:w-52 lg:shadow-md lg:space-y-0 lg:mt-0 ${profileState ? '' : 'lg:hidden'}`}>
-                  {
-                    navigationAfterLogin.map((item, idx) => (
                       <li>
-                        <a key={idx} className="block text-gray-600 lg:hover:bg-gray-50 lg:p-2.5" href={item.path}>
-                          {item.title}
-                        </a>
+                        <button className="block text-gray-600 lg:hover:bg-gray-50 lg:p-2.5" >
+                          Dashboard
+                        </button>
                       </li>
-                    ))
-                  }
+                      <li>
+                        <button className="block text-gray-600 lg:hover:bg-gray-50 lg:p-2.5" >
+                          Settings
+                        </button>
+                      </li>
+                      <li>
+                        <button className="block text-gray-600 lg:hover:bg-gray-50 lg:p-2.5" onClick={logoutHandler}>
+                          Logout
+                        </button>
+                      </li>
                 </ul>
               </div>
             </>
