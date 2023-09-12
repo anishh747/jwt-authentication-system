@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from "react-redux";
 import { useLogoutMutation } from '../slices/usersApiSlice';
-import {logout} from '../slices/authSlice'
+import {logout} from '../slices/authSlice';
+import { v4 as uuidv4 } from 'uuid';
+
 
 const Header = () => {
 
@@ -27,11 +29,11 @@ const Header = () => {
   }
   const { userInfo } = useSelector((state) => state.auth);
 
-  // Replace javascript:void(0) path with your path
+  // Replace  path with your path
   const navigation = [
-    { title: "Careers", path: "javascript:void(0)" },
-    { title: "Guides", path: "javascript:void(0)" },
-    { title: "Partners", path: "javascript:void(0)" },
+    { title: "Careers", path: "" },
+    { title: "Guides", path: "" },
+    { title: "Partners", path: "" },
   ]
 
   useEffect(() => {
@@ -64,7 +66,7 @@ const Header = () => {
     <nav ref={navRef} className="bg-white w-full top-0 z-20">
       <div className="items-center px-4 max-w-screen-xl mx-auto md:px-8 lg:flex">
         <div className="flex items-center justify-between py-3 lg:py-4 lg:block">
-          <a href="javascript:void(0)">
+          <a href="">
             <img
               src="https://www.floatui.com/logo.svg"
               width={120}
@@ -96,20 +98,20 @@ const Header = () => {
               <div>
                 <ul className="flex flex-col-reverse space-x-0 lg:space-x-6 lg:flex-row">
                   <li className="mt-8 mb-8 lg:mt-0 lg:mb-0">
-                    <a href="javascript:void(0)" className="text-gray-600 hover:text-indigo-600">
+                    <a href="" className="text-gray-600 hover:text-indigo-600">
                       Contact
                     </a>
                   </li>
                   <Link to="/login">
                     <li className="mt-4 lg:mt-0">
-                      <a href="javascript:void(0)" className="py-3 px-4 text-center border text-gray-600 hover:text-indigo-600 rounded-md block lg:inline lg:border-0">
+                      <a href="" className="py-3 px-4 text-center border text-gray-600 hover:text-indigo-600 rounded-md block lg:inline lg:border-0">
                         Login
                       </a>
                     </li>
                   </Link>
                   <Link to="/register">
                     <li className="mt-8 lg:mt-0">
-                      <a href="javascript:void(0)" className="py-3 px-4 text-center text-white bg-indigo-600 hover:bg-indigo-700 rounded-md shadow block lg:inline">
+                      <a href="" className="py-3 px-4 text-center text-white bg-indigo-600 hover:bg-indigo-700 rounded-md shadow block lg:inline">
                         Sign Up
                       </a>
                     </li>
@@ -121,6 +123,13 @@ const Header = () => {
             <>
               <div className={`relative`}>
                 <div className="flex items-center space-x-4">
+                  <Link to={`/room/${uuidv4()}`}>
+                    <button className="relative inline-flex items-center justify-center p-0.5 mb-2 mr-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-purple-600 to-blue-500 group-hover:from-purple-600 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800">
+                    <span className=" relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
+                      Join or Create
+                    </span>
+                  </button>
+                  </Link>
                   <button ref={profileRef} className="w-10 h-10 outline-none rounded-full ring-offset-2 ring-gray-200 ring-2 lg:focus:ring-indigo-600"
                     onClick={() => setProfileState(!profileState)}
                   >
