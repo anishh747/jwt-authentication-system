@@ -8,7 +8,7 @@ router.post('/createroom',createRoom);
 
 router.post('/inviteroom',inviteRoom);
 
-router.get('/joinroom',protect,joinRoom);
+router.post('/joinroom',protect,joinRoom);
 
 router.post('/endroom',protect,endRoom);
 

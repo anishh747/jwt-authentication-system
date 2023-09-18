@@ -11,6 +11,12 @@ const Room = () => {
     const dispatch = useDispatch();
 
     const { userInfo } = useSelector((state) => state.auth);
+    useEffect(()=>{
+        if (!userInfo) {
+            navigate('/login')
+            console.log()
+        }
+    },[navigate,userInfo])
 
     const posts = [
         {

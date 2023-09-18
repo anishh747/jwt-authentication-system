@@ -1,59 +1,61 @@
-//Auth user/set token 
-
 import { pool } from "../db.js"; 
 import expressAsyncHandler from "express-async-handler";
-import generateToken from "../utils/generateToken.js";
 
 const createRoom = expressAsyncHandler(async(req,res) =>{
-    // res.status(200).json({mesage:"REgister User"})
     let {room_id, host} = req.body;
-    const createTableForRoom = await pool.query("CREATE TABLE room_($1)(owner varchar",[email])
-    if (checkUser.rowCount !== 0) {
-        res.status(400);
-        throw new Error("USER ALREADY EXISTS")
+    let changed_room_id =  room_id.replace(/-/g, '_');
+    const room = await pool.query("INSERT INTO room (room_id, host_email) VALUES($1,$2)",[changed_room_id,host])
+    if (room.rowCount === 1) {
+        // const createTableQuery = `CREATE TABLE ${changed_room_id} (
+        //     table_id SERIAL PRIMARY KEY,
+        //     user_email VARCHAR(30),
+        //     hasJoined BOOLEAN NOT NULL
+        //   )`;
+        // const newTableRoom = await pool.query(createTableQuery);
+        res.status(200);
+        res.json(room);
     }else{
-        const register = await pool.query("INSERT INTO users (email, name,password) VALUES ($1,$2,$3) ",[email,name,password])
-        const user = await pool.query("SELECT id FROM users WHERE email = ($1)",[email])
-        generateToken(res, user.rows.id);
-        res.json(register);
+        res.status(400);
+        res.json("Error")
     }
-
 });
 
 
 //public route
 const joinRoom = expressAsyncHandler(async(req,res) =>{
-    const {email,password} = req.body;
-    const checkUser = await pool.query("SELECT id FROM users WHERE email = ($1)",[email])
-    if (checkUser.rowCount !== 0) {
-        const userDetails = await pool.query("SELECT * FROM users WHERE email = ($1)",[email])
-        if (await bcrypt.compare(password,userDetails.rows[0].password)) {
-            generateToken(res,checkUser.rows[0].id)
-            res.status(201)
-            res.json(userDetails)
-        }else{
-            res.status(401)
-            throw new Error("Invalid Email or Password")
-        }
+    console.log("HERE")
+    const {room_id,email} = req.body;
+    let changed_room_id =  room_id.replace(/-/g, '_');
+    const checkRoomExists = await pool.query("SELECT * FROM room WHERE room_id = ($1)",[changed_room_id])
+    
+    if (checkRoomExists.rowCount !== 0) {
+        // const roomTableQuery = `SELECT * FROM ${changed_room_id}`;
+        // const tableData = await pool.query(roomTableQuery);
+        res.json(checkRoomExists)    
     }else{
         res.status(401)
-        throw new Error("Invalid Email or Password")
+        throw new Error("Room Doesn't Exists")
     }
 });
 
 
 const endRoom = expressAsyncHandler(async(req,res) =>{
-    res.cookie('jwt','',{
-        httpOnly: true,
-        expires: new Date(0)
-    })
+    const {email,room_id} = req.body;
+    let changed_room_id =  room_id.replace(/-/g, '_');
 
-    res.status(200).json({message: "Logged Out Successfully"})
+    const endRoomQuery = `DROP TABLE ${changed_room_id}`;
+    const endRoom = await pool.query(endRoomQuery);
+
+    const deleteRoomFromRoomTable  = await pool.query("DELETE FROM room WHERE room_id = ($1)",[changed_room_id])
+    
+    res.status(200).json({message: "Room Ended Successfully"})
 });
 
 const inviteRoom = expressAsyncHandler(async(req,res) =>{
-    console.log(req.user)
-    res.status(200).json({mesage:"getUserProfile"})
+    const {email,room_id} = req.body;
+    let changed_room_id =  room_id.replace(/-/g, '_');    
+    
+    const endRoomQuery = `DROP TABLE${changed_room_id}`;
 
 });
 

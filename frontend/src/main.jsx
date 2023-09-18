@@ -9,6 +9,8 @@ import HomeScreen from './screens/HomeScreen.jsx'
 import Login from './components/Login.jsx'
 import Register from './components/Register.jsx'
 import Room from './components/Room.jsx'
+import Chat from './components/Chat.jsx'
+
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -16,7 +18,7 @@ const router = createBrowserRouter(
       <Route index={true} path='/' element={<HomeScreen />} />
       <Route path='/register' element={<Register />} />
       <Route path='/login' element={<Login />} />
-      <Route path='/room/:id' element={<Room />}/>
+      <Route path='/room/:id' element={<Chat />}/>
     </Route>
   )
 )
