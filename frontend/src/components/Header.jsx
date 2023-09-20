@@ -6,6 +6,7 @@ import { logout } from '../slices/authSlice';
 import { v4 as uuidv4 } from 'uuid';
 import { useCreateRoomMutation } from '../slices/roomSlice';
 import { useJoinRoomMutation } from '../slices/roomSlice';
+import { setRoomData } from '../slices/chatRoomSlice';
 import { toast } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -48,7 +49,7 @@ const Header = () => {
         favDialog.close(dialogInput.value);
         let room_id = favDialog.returnValue;
         const res = await joinRoom({ room_id, userEmail }).unwrap();
-        console.log(res)
+        dispatch(setRoomData({...res}));
         if (res.rowCount === 1) {
           navigate(`/room/${room_id}`)
         }
@@ -60,11 +61,18 @@ const Header = () => {
 
     createRoomBtn.addEventListener("click", async (event) => {
       event.preventDefault();
-      const room_id = uuidv4();
-      const host = userInfo.rows[0].email;
-      const res = await createRoom({ room_id, host }).unwrap();
-      favDialog.close();
-      navigate(`/room/${room_id}`)
+      try {
+        const room_id = uuidv4();
+        const host = userInfo.rows[0].email;
+        const res = await createRoom({ room_id, host }).unwrap();
+        dispatch(setRoomData({ ...res }));
+        favDialog.close();
+        navigate(`/room/${room_id}`)
+      } catch (err) {
+        favDialog.close();
+        toast.error(err?.data?.message || err.error)
+        // toast("Some Error Occured")
+      }
     });
   }
 

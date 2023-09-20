@@ -12,8 +12,10 @@ const createRoom = expressAsyncHandler(async(req,res) =>{
         //     hasJoined BOOLEAN NOT NULL
         //   )`;
         // const newTableRoom = await pool.query(createTableQuery);
+        const selectRoom = await pool.query("SELECT * FROM room WHERE room_id = ($1)",[changed_room_id])
+
         res.status(200);
-        res.json(room);
+        res.json(selectRoom);
     }else{
         res.status(400);
         res.json("Error")
@@ -40,11 +42,11 @@ const joinRoom = expressAsyncHandler(async(req,res) =>{
 
 
 const endRoom = expressAsyncHandler(async(req,res) =>{
-    const {email,room_id} = req.body;
+    const {room_id, email} = req.body;
     let changed_room_id =  room_id.replace(/-/g, '_');
 
-    const endRoomQuery = `DROP TABLE ${changed_room_id}`;
-    const endRoom = await pool.query(endRoomQuery);
+    // const endRoomQuery = `DROP TABLE ${changed_room_id}`;
+    // const endRoom = await pool.query(endRoomQuery);
 
     const deleteRoomFromRoomTable  = await pool.query("DELETE FROM room WHERE room_id = ($1)",[changed_room_id])
     

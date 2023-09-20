@@ -1,23 +1,31 @@
-import { useState,useEffect,useLayoutEffect } from 'react';
+import { useState,useEffect } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import { io } from 'socket.io-client'
 import { Link, useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import './chat.css'
 import SingleMessage from './SingleMessage';
+import {useEndRoomMutation} from '../slices/roomSlice';
+import Room from './Room';
+import { clearRoomData } from '../slices/chatRoomSlice';
 
-const Chat= () => {
-    
+const Chat = async () => {
+    const dispatch = useDispatch();
     const navigate = useNavigate();
-    const {userInfo} = useSelector((state)=>state.auth);;
-    const{id:roomId} = useParams();
+    const {roomInfo} = await useSelector((state)=>state.chatRoom);
+    const {userInfo} = useSelector((state)=>state.auth);
+    const {id:room_id} = useParams();
     const [socket,setSocket] = useState();
     const [inputText, setInputText] = useState('');
+    const [endRoom] = useEndRoomMutation();
     const [allMessages, setAllMessages] = useState([]);
     const userName = userInfo.rows[0].name;
+    const userEmail = userInfo.rows[0].email;
     const now = new Date();
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
+    console.log(roomInfo);
+    // const hostEmail = roomInfo.rows[0].host_email
 
     //Make a connection to ther server
     useEffect(()=>{
@@ -31,21 +39,11 @@ const Chat= () => {
     
     useEffect(()=>{
         if (socket == null) return; 
-        socket.emit('joinRoomCode',roomId)
+        socket.emit('joinRoomCode',room_id)
         return ()=>{
             socket.off('joinRoomCode');
         }
-    },[socket, roomId])
-
-    const submitForm = (e)=>{
-        e.preventDefault();
-        if(socket == null) return ;
-
-        const currentTime = `${hours}:${minutes}`
-
-        socket.emit('chatMessage',{inputText, userName, currentTime})
-        setInputText('')
-    } 
+    },[socket, room_id])
     
     //Receive changes made by other client
     useEffect(()=>{
@@ -72,22 +70,50 @@ const Chat= () => {
 
     // useEffect(()=>{
     //     if(socket == null) return ;
-    //     socket.emit('get-document',roomId)
-    // },[socket,roomId])
+    //     socket.emit('get-document',room_id)
+    // },[socket,room_id])
 
-    useEffect(()=>{
-        console.log(allMessages)
-        const chatMessages = document.getElementById('chat-messages')
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+    // useEffect(()=>{
+    //     console.log(allMessages)
+    //     const chatMessages = document.getElementById('chat-messages')
+    //     chatMessages.scrollTop = chatMessages.scrollHeight;
 
-    },[allMessages])
+    // },[allMessages])
+
+    const submitForm = (e)=>{
+        e.preventDefault();
+        if(socket == null) return ;
+
+        const currentTime = `${hours}:${minutes}`
+
+        socket.emit('chatMessage',{inputText, userName, currentTime})
+        setInputText('')
+    } 
+    
+    const leaveRoomUser = () =>{
+        setSocket(null);
+        navigate('/')
+    }
+    
+    const endRoomOnClick = async () =>{
+        setSocket(null);
+        const res = await endRoom({ room_id, userEmail }).unwrap();
+        navigate('/');
+        dispatch(clearRoomData({...res}));
+    }
 
     return (
         <>
             <div className="chat-container">
                 <header className="chat-header">
-                    <h1><i className="fas fa-smile"></i> SXYNiX</h1>
-                        <a href="index.html" className="btn">Leave Room</a>
+                    <h1><i className="fas fa-smile"></i> SXYNIX</h1>
+                    {
+                        (userEmail !== roomInfo.rows[0].host_email) ? (
+                            <button onClick={leaveRoomUser} type="button" class="text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">Leave Room</button>
+                        ):(
+                            <button onClick={endRoomOnClick} type="button" class="text-white bg-gradient-to-r from-pink-400 via-pink-500 to-pink-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-pink-300 dark:focus:ring-pink-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">End Room</button>
+                        )
+                    }
                 </header>
                 <main className="chat-main">
                     <div className="chat-sidebar">
@@ -127,8 +153,7 @@ const Chat= () => {
                     </form>
                 </div>
             </div>
-
-        </>
+            </>
     );
 }
 
